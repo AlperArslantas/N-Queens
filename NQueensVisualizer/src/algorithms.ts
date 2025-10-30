@@ -1,51 +1,80 @@
 export type QueenPosition = [number, number];
 
-// Her adımda satranç tahtasındaki vezirlerin dizilişi kaydedilecek
-type Step = QueenPosition[];
+export type Step = QueenPosition[];
 
-/**
- * N-Queens Backtracking - Adım adım tüm hareketleri kaydeder
- * @param n Satranç tahtası ve vezir sayısı
- * @returns Step[] - her adımda vezirlerin yerini içerir
- */
-export function solveNQueensStepwise(n: number): Step[] {
+export interface Metrics {
+  runtimeMs: number;
+  stepsCount: number;
+  visitedStates?: number;
+  conflictTrend: number[];
+  success: boolean;
+  restarts?: number;
+  backtracks?: number;
+  maxDepth?: number;
+  failureReason?: 'plateau' | 'cycle' | 'stuck';
+}
+
+export interface SolveResult {
+  steps: Step[];
+  metrics: Metrics;
+}
+
+export function solveNQueensStepwise(n: number): SolveResult {
+  const t0 = performance.now();
   const steps: Step[] = [];
   const queens: QueenPosition[] = [];
   const columns = Array(n).fill(false);
-  const diag1 = Array(2 * n - 1).fill(false); // (row + col)
-  const diag2 = Array(2 * n - 1).fill(false); // (row - col + n - 1)
+  const diag1 = Array(2 * n - 1).fill(false);
+  const diag2 = Array(2 * n - 1).fill(false);
+  let backtracks = 0;
+  let maxDepth = 0;
 
-  function backtrack(row: number) {
+  function backtrack(row: number): boolean {
+    maxDepth = Math.max(maxDepth, row);
     if (row === n) {
-      steps.push([...queens]); // Çözüm bulunduğunda kaydet
+      steps.push([...queens]);
       return true;
     }
     for (let col = 0; col < n; col++) {
       if (columns[col] || diag1[row + col] || diag2[row - col + n - 1]) continue;
       queens.push([row, col]);
       columns[col] = diag1[row + col] = diag2[row - col + n - 1] = true;
-      steps.push([...queens]); // Yerleştirme adımı
-      if (backtrack(row + 1)) return true; // Tek çözüm
-      // Geri al
+      steps.push([...queens]);
+      if (backtrack(row + 1)) return true;
       queens.pop();
       columns[col] = diag1[row + col] = diag2[row - col + n - 1] = false;
-      steps.push([...queens]); // Kaldırma (backtrack) adımı
+      backtracks++;
+      steps.push([...queens]);
     }
     return false;
   }
-  backtrack(0);
-  return steps;
+  const solved = backtrack(0);
+  const t1 = performance.now();
+
+  return {
+    steps,
+    metrics: {
+      runtimeMs: t1 - t0,
+      stepsCount: steps.length,
+      visitedStates: steps.length,
+      conflictTrend: [],
+      success: solved,
+      restarts: 0,
+      backtracks,
+      maxDepth,
+    },
+  };
 }
 
-// Hill Climbing (Steepest-ascent) adım kaydı ile
 export interface HcOptions {
-  maxRestarts?: number; // random restarts
-  allowSideways?: boolean; // şimdilik varsayılan false
-  maxStepsPerRestart?: number; // güvenlik sınırı
+  maxRestarts?: number;
+  allowSideways?: boolean;
+  maxStepsPerRestart?: number;
+  sidewaysLimit?: number; // eşit çatışmalı adımlara izin sayısı
+  cycleWindow?: number; // tekrar döngü tespiti için pencere
 }
 
 function randomInitial(n: number): QueenPosition[] {
-  // Her sütuna bir vezir, rastgele satır
   const q: QueenPosition[] = [];
   for (let col = 0; col < n; col++) {
     const row = Math.floor(Math.random() * n);
@@ -66,20 +95,32 @@ export function conflicts(queens: QueenPosition[]): number {
   return c;
 }
 
-export function solveNQueensHCStepwise(n: number, options: HcOptions = {}): Step[] {
-  const { maxRestarts = 50, allowSideways = true, maxStepsPerRestart = 2000 } = options;
+export function solveNQueensHCStepwise(n: number, options: HcOptions = {}): SolveResult {
+  const { maxRestarts = 50, allowSideways = true, maxStepsPerRestart = 2000, sidewaysLimit = 200, cycleWindow = 100 } = options;
+  const t0 = performance.now();
   const steps: Step[] = [];
+  const trend: number[] = [];
+  let restarts = 0;
+  let visitedStates = 0;
+  let failureReason: Metrics['failureReason'];
+
+  function serialize(queens: QueenPosition[]): string {
+    // sütun sırası garanti: [row0,row1,...]
+    return queens.map(q => q[0]).join(',');
+  }
 
   function steepestAscentOnce(): { solved: boolean } {
     let current = randomInitial(n);
     steps.push([...current]);
-
     let currentConf = conflicts(current);
+    trend.push(currentConf);
+
     let stepsCount = 0;
+    let sidewaysCount = 0;
+    const recent = new Set<string>();
 
     while (currentConf > 0 && stepsCount < maxStepsPerRestart) {
       stepsCount++;
-      // Tüm komşuları değerlendir: her sütundaki veziri farklı satırlara taşı
       let best = current;
       let bestConf = currentConf;
       let moved = false;
@@ -91,6 +132,7 @@ export function solveNQueensHCStepwise(n: number, options: HcOptions = {}): Step
           const neighbor = current.slice();
           neighbor[col] = [row, col];
           const conf = conflicts(neighbor);
+          visitedStates++;
           if (conf < bestConf || (allowSideways && conf === bestConf)) {
             best = neighbor;
             bestConf = conf;
@@ -99,23 +141,55 @@ export function solveNQueensHCStepwise(n: number, options: HcOptions = {}): Step
         }
       }
 
-      if (!moved) break;
+      if (!moved) { failureReason = 'stuck'; break; }
+
+      if (bestConf === currentConf) {
+        sidewaysCount++;
+        if (sidewaysCount > sidewaysLimit) { failureReason = 'plateau'; break; }
+      } else {
+        sidewaysCount = 0;
+      }
+
+      const key = serialize(best);
+      if (recent.has(key)) { failureReason = 'cycle'; break; }
+      recent.add(key);
+      if (recent.size > cycleWindow) {
+        // pencereyi kaydırmak için ilk ekleneni temizlemek yerine basit reset
+        recent.clear();
+        recent.add(key);
+      }
 
       current = best;
       currentConf = bestConf;
       steps.push([...current]);
+      trend.push(currentConf);
     }
 
     return { solved: currentConf === 0 };
   }
 
+  let solved = false;
   for (let r = 0; r <= maxRestarts; r++) {
-    const { solved } = steepestAscentOnce();
-    if (solved) return steps; // çözüm adımları steps'e eklendi
-    // restart
-    // restart durumunu da adım olarak not etmek için boş snapshot ekleyebiliriz (opsiyonel)
+    const res = steepestAscentOnce();
+    if (res.solved) { solved = true; failureReason = undefined; break; }
+    restarts++;
     steps.push([]);
   }
 
-  return steps; // çözüm bulunamadıysa üretilen adımlar yine gösterilebilir
+  const t1 = performance.now();
+
+  return {
+    steps,
+    metrics: {
+      runtimeMs: t1 - t0,
+      stepsCount: steps.length,
+      visitedStates,
+      conflictTrend: trend,
+      success: solved,
+      restarts,
+      backtracks: 0,
+      maxDepth: 0,
+      failureReason,
+    },
+  };
 }

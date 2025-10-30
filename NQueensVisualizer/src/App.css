@@ -75,3 +75,16 @@
 .algo-indicator {
   color: #334155;
 }
+
+/* Toast */
+.toast {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  background: rgba(30, 41, 59, 0.95);
+  color: #fff;
+  padding: 10px 14px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  z-index: 1000;
+}
