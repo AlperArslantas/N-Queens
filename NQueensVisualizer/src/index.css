@@ -11,6 +11,14 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  --board-bg: #0f172a; /* slate-900 */
+  --board-border: #1f2937; /* gray-800 */
+  --board-grid: rgba(255,255,255,0.08);
+  --board-light: #e5e7eb; /* gray-200 */
+  --board-dark: #9db2cf; /* soft steel blue */
+  --queen-color: #111827; /* near black */
+  --accent: #22d3ee; /* cyan-400 */
 }
 
 a {
@@ -58,6 +66,13 @@ button:focus-visible {
   :root {
     color: #213547;
     background-color: #ffffff;
+    --board-bg: #ffffff;
+    --board-border: #cbd5e1; /* slate-300 */
+    --board-grid: rgba(0,0,0,0.08);
+    --board-light: #f8fafc; /* slate-50 */
+    --board-dark: #c7d2fe; /* indigo-200 tint */
+    --queen-color: #111827;
+    --accent: #06b6d4; /* cyan-500 */
   }
   a:hover {
     color: #747bff;
@@ -65,4 +80,15 @@ button:focus-visible {
   button {
     background-color: #f9f9f9;
   }
+}
+
+@keyframes qGlowPulse {
+  0% { transform: scale(0.9); opacity: 0.9; }
+  70% { transform: scale(1.1); opacity: 0.3; }
+  100% { transform: scale(1.2); opacity: 0; }
+}
+
+.q-glow {
+  animation: qGlowPulse 600ms ease-out forwards;
+  transform-origin: center;
 }
