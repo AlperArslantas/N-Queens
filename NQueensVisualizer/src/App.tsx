@@ -24,7 +24,7 @@ function App() {
   const [n, setN] = useState(8);
   const [algo, setAlgo] = useState('backtracking');
   const [steps, setSteps] = useState(dummySteps);
-  const [metrics, setMetrics] = useState<{ [k: string]: any } | null>(null);
+  const [, setMetrics] = useState<{ [k: string]: any } | null>(null);
   const [pendingMetrics, setPendingMetrics] = useState<{ [k: string]: any } | null>(null);
   const [currentStep, setCurrentStep] = useState(0);
   const [playing, setPlaying] = useState(false);
@@ -269,20 +269,6 @@ function App() {
 
   const decN = () => onChangeN(n - 1);
   const incN = () => onChangeN(n + 1);
-
-  const Trend: React.FC<{ data: number[] }> = ({ data }) => {
-    if (!data || data.length === 0) return <span>—</span>;
-    const w = 180, h = 48;
-    const max = Math.max(...data);
-    const min = Math.min(...data);
-    const norm = (v: number) => max === min ? h / 2 : h - ((v - min) / (max - min)) * h;
-    const points = data.map((v, i) => `${(i / Math.max(1, data.length - 1)) * w},${norm(v)}`).join(' ');
-    return (
-      <svg width={w} height={h} style={{ background: '#f5f5f5', borderRadius: 6 }}>
-        <polyline fill="none" stroke="#1e293b" strokeWidth={2} points={points} />
-      </svg>
-    );
-  };
 
   return (
     <div className="app-shell">
