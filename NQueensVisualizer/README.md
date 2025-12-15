@@ -1,73 +1,144 @@
-# React + TypeScript + Vite
+## N-Queens Görsel ve Karşılaştırma Uygulaması
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+**Geliştirici: Alper Arslantaş**  
+Canlı Demo: [n-queens-pp6e.vercel.app](https://n-queens-pp6e.vercel.app)
 
-Currently, two official plugins are available:
+Bu proje, klasik **N-Queens** problemini iki farklı yaklaşımla (**Backtracking** ve **Hill Climbing**) çözüp, çözümleri **adım adım görselleştirmeyi** ve elde edilen metrikleri yan yana **karşılaştırmayı** amaçlayan bir web uygulamasıdır.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+---
 
-## React Compiler
+## Özellikler
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **İnteraktif satranç tahtası**
+  - \(N \times N\) boyutlu tahta (N: 4–24 arası seçilebilir)
+  - Vezirlerin yerleşimini adım adım izleyebilme
+  - Son oynanan hamlenin hücresini kısa süreli vurgulama
 
-## Expanding the ESLint configuration
+- **İki farklı algoritma**
+  - **Backtracking**
+    - Sistematik arama
+    - Backtrack sayısı, maksimum derinlik, ziyaret edilen durum sayısı gibi metrikler
+  - **Hill Climbing (Steepest Ascent)**
+    - Rastgele başlangıç + en dik yokuş tırmanışı
+    - Restart sayısı, ziyaret edilen durum sayısı
+    - Başarı durumu ve başarısızlık nedeni (`plateau`, `cycle`, `stuck`)
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- **Adım adım animasyon**
+  - Oynat / Durdur / Adım Geri / Adım İleri / Animasyonu Bitir
+  - Ayarlanabilir hız (slider ile 1–20 arası)
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+- **Kalıcı metrikler**
+  - Her algoritmanın **son koşusuna ait** metrikler `localStorage`’da saklanır
+  - Uygulamayı yenilesen bile son çalışmanın sonuçlarını görebilirsin
+  - “Tüm Kayıtlı Sonuçları Temizle” butonu ile temizleme
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+- **Açıklayıcı bilgi sayfaları**
+  - Backtracking ve Hill Climbing için ayrı bilgi sayfaları (kavramsal açıklama + kullanım alanları)
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+---
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Kullanılan Teknolojiler
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+- **Frontend**
+  - [React](https://react.dev/) (TypeScript ile)
+  - [React Router](https://reactrouter.com/) (bilgi sayfaları ve ana uygulama için yönlendirme)
+  - [Vite](https://vitejs.dev/) (geliştirme ve build aracı)
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+- **Dil ve araçlar**
+  - **TypeScript**
+  - **ESLint** (Temel kod kalitesi kontrolü)
+  - Tarayıcı tarafında **`performance.now()`** ile basit süre ölçümü
+  - **localStorage** ile kalıcı metrik saklama
+
+- **Deploy**
+  - [Vercel](https://vercel.com/) üzerinde barındırma  
+    Canlı: [https://n-queens-pp6e.vercel.app](https://n-queens-pp6e.vercel.app)
+
+---
+
+## Projeyi Çalıştırma
+
+### Gerekli Önkoşullar
+
+- Node.js 18+ (veya Vite ile uyumlu güncel bir sürüm)
+- npm (veya tercih edersen yarn/pnpm)
+
+### Kurulum
+
+git clone https://github.com/AlperArslantas/N-Queens.git
+cd N-Queens/NQueensVisualizer
+npm install### Geliştirme Sunucusu
+
+npm run devTarayıcıdan şu adrese git:
+
+http://localhost:5173### Production Build
+
+npm run build Oluşan statik dosyalar `dist/` klasöründe yer alır.  
+İstersen `npm run preview` komutuyla lokal production önizlemesi yapabilirsin.
+
+---
+
+## Algoritma Tasarımı
+
+### 1. Backtracking – `solveNQueensStepwise`
+
+- Dosya: `src/algorithms.ts`
+- Fonksiyon: `solveNQueensStepwise(n: number): SolveResult`
+
+**Temel fikir:**
+
+- Satır satır ilerleyen, rekürsif bir fonksiyon (`backtrack(row)`).
+- Her satırda, tüm sütunlar denenir.
+- Aynı sütunda veya çaprazda vezir varsa o sütun atlanır.
+- Geçerli bir hamle yapıldığında:
+  - Vezir tahtaya eklenir,
+  - Sütun ve çapraz dizileri güncellenir,
+  - Mevcut durum `steps` dizisine kopyalanır.
+- Sonraki satırlarda çözüm yoksa:
+  - Vezir kaldırılır,
+  - Sütun/çaprazlar geri alınır,
+  - `backtracks` sayacı artırılır,
+  - Bu geri dönüş durumu da `steps`’e eklenir.
+
+**Metrikler:**
+
+- `runtimeMs` – Toplam çalışma süresi
+- `stepsCount` ve `visitedStates` – Üretilen adım sayısı
+- `backtracks` – Kaç kez geri dönüş yapıldığını gösterir
+- `maxDepth` – Arama sırasında ulaşılan maksimum satır derinliği
+
+### 2. Hill Climbing – `solveNQueensHCStepwise`
+
+- Dosya: `src/algorithms.ts`
+- Fonksiyon: `solveNQueensHCStepwise(n: number, options?: HcOptions): SolveResult`
+
+**Temel fikir:**
+
+- `randomInitial` ile her sütunda bir vezir olacak şekilde rastgele başlangıç yapılır.
+- Her adımda:
+  - Tüm komşu durumlar üretilir (her veziri aynı sütunda farklı satıra kaydırmak).
+  - Her komşu için `conflicts` fonksiyonuyla çatışma sayısı hesaplanır.
+  - Çatışma sayısı en düşük olan (ve gerekiyorsa `allowSideways` ile eşit olan) komşu seçilir.
+- En iyi komşu da mevcut durumla aynı çatışma sayısına sahipse:
+  - Plato üzerinde **yan adımlar** sayılır (`sidewaysCount`).
+  - Bu sayı `sidewaysLimit`’i aşarsa `failureReason = 'plateau'`.
+- Hiç daha iyi veya eşit komşu bulunamazsa:
+  - `failureReason = 'stuck'`.
+- Önceki state’ler `serialize` + `Set` ile takip edilir:
+  - Aynı state’e geri gelinirse `failureReason = 'cycle'`.
+
+**Restart mantığı:**
+
+- Tek bir tırmanış `steepestAscentOnce` içinde yapılır.
+- Dışarıda `for (r = 0; r <= maxRestarts; r++)` döngüsü ile:
+  - Çözüm bulunana kadar veya restart limiti dolana kadar yeniden başlangıç yapılır.
+  - Her restart arası `steps` dizisine boş bir adım eklenerek ayrım yapılır.
+
+**Metrikler:**
+
+- `steps` – Tüm adımlar (restart ayraçları ile birlikte)
+- `runtimeMs` – Toplam süre
+- `visitedStates` – Değerlendirilen komşu sayısı
+- `conflictTrend` – Her adımda çatışma sayısı (grafik için)
+- `restarts` – Kaç kez yeniden başlatıldığı
+- `failureReason` – Başarısızlık
