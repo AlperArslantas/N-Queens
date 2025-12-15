@@ -335,7 +335,8 @@ function App() {
                       ⏩ Animasyonu Bitir
                     </button>
                     <label className="speed-control">
-                      Hız: {speed}
+                      <span className="speed-label">Hız</span>
+                      <span className="speed-value">{speed}</span>
                       <input
                         type="range"
                         min={1}

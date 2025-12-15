@@ -165,7 +165,7 @@ body {
   justify-content: center;
   gap: 8px;
   margin-top: 10px;
-  flex-wrap: wrap;
+  
 }
 
 .speed-control {
@@ -175,6 +175,18 @@ body {
   font-size: 0.8rem;
   color: #475569;
   margin-left: 8px;
+}
+
+.speed-label {
+  font-weight: 500;
+}
+
+.speed-value {
+  display: inline-block;
+  min-width: 24px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  color: #0f172a;
 }
 
 .speed-control input[type="range"] {
