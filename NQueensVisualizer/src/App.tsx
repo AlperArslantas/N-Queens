@@ -285,116 +285,177 @@ function App() {
   };
 
   return (
-    <div className="container">
-      <nav style={{ display: 'flex', gap: 12, justifyContent: 'center', marginBottom: 8 }}>
-        <Link to="/">Uygulama</Link>
-        <Link to="/info/backtracking">Backtracking Bilgi</Link>
-        <Link to="/info/hillclimbing">Hill Climbing Bilgi</Link>
-      </nav>
-      <Routes>
-        <Route path="/" element={
-          <>
-            <h1>N-Queens Görsel ve Karşılaştırma Uygulaması</h1>
-            <div className="top-controls">
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
-                <label>
-                  Tahta Boyutu (N):
-                  <input
-                    type="number"
-                    min={4}
-                    max={24}
-                    value={n}
-                    onChange={e => onChangeN(Number(e.target.value))}
-                    style={{ width: 52, marginLeft: 8 }}
-                  />
-                </label>
-                <div style={{ marginTop: 6, display: 'flex', gap: 6 }}>
-                  <button onClick={decN} disabled={n <= 4}>−</button>
-                  <button onClick={incN} disabled={n >= 24}>+</button>
-                </div>
-              </div>
-              <div className="algo-buttons">
-                {ALGORITHMS.map(a => (
-                  <button
-                    key={a.key}
-                    className={algo === a.key ? 'selected' : ''}
-                    onClick={() => setAlgo(a.key)}
-                  >
-                    {a.name} ile Çöz
-                  </button>
-                ))}
-                <button onClick={handleSolve} style={{ marginLeft: 12 }}>
-                  Seçili Yöntemle Çöz
-                </button>
-              </div>
-              <div className="algo-indicator">Seçili: <strong>{algo === 'backtracking' ? 'Backtracking' : 'Hill Climbing'}</strong></div>
-            </div>
-            <div className="board-panel">
-              <ChessBoard n={n} queens={steps[currentStep]} highlight={highlight} />
-            </div>
-            <div className="anim-controls">
-              <button onClick={stepBack} disabled={currentStep === 0}>⏮️ Adım Geri</button>
-              <button onClick={handlePause} disabled={!playing}>⏸️ Durdur</button>
-              <button onClick={handlePlay} disabled={playing || currentStep === steps.length - 1}>▶️ Oynat</button>
-              <button onClick={stepForward} disabled={currentStep === steps.length - 1}>⏭️ Adım İleri</button>
-              <button onClick={finishNow} disabled={steps.length === 0 || currentStep === steps.length - 1} style={{ marginLeft: 6 }}>⏩ Animasyonu Bitir</button>
-              <label style={{ marginLeft: 16 }}>
-                Hız: {speed}
-                <input
-                  type="range"
-                  min={1}
-                  max={20}
-                  value={speed}
-                  onChange={e => handleSpeedChange(Number(e.target.value))}
-                  style={{ width: 140, marginLeft: 8 }}
-                />
-              </label>
-            </div>
-            {/* Üstteki metrik paneli kaldırıldı */}
+    <div className="app-shell">
+      <header className="app-header">
+        <div>
+          <h1 className="app-title">N-Queens Görsel ve Karşılaştırma Uygulaması</h1>
+          <p className="app-subtitle">
+            N-Queens problemini Backtracking ve Hill Climbing algoritmaları ile adım adım inceleyip,
+            performanslarını karşılaştırın.
+          </p>
+        </div>
+        <nav className="app-nav">
+          <Link to="/" className="nav-link">
+            Uygulama
+          </Link>
+          <Link to="/info/backtracking" className="nav-link">
+            Backtracking Bilgi
+          </Link>
+          <Link to="/info/hillclimbing" className="nav-link">
+            Hill Climbing Bilgi
+          </Link>
+        </nav>
+      </header>
+      <main className="app-main">
+        <Routes>
+          <Route
+            path="/"
+            element={
+              <div className="layout-main">
+                <section className="board-section card">
+                  <div className="board-header">
+                    <div className="board-title-group">
+                      <h2>Satranç Tahtası</h2>
+                      <span className="status-pill">{status}</span>
+                    </div>
+                    <div className="board-meta">
+                      <span>Adım: {currentStep + 1} / {steps.length}</span>
+                      {playDurationMs != null && (
+                        <span className="board-time">Süre: {formatMs(playDurationMs)}</span>
+                      )}
+                    </div>
+                  </div>
+                  <div className="board-panel">
+                    <ChessBoard n={n} queens={steps[currentStep]} highlight={highlight} />
+                  </div>
+                  <div className="anim-controls">
+                    <button onClick={stepBack} disabled={currentStep === 0}>
+                      ⏮️ Adım Geri
+                    </button>
+                    <button onClick={handlePause} disabled={!playing}>
+                      ⏸️ Durdur
+                    </button>
+                    <button onClick={handlePlay} disabled={playing || currentStep === steps.length - 1}>
+                      ▶️ Oynat
+                    </button>
+                    <button onClick={stepForward} disabled={currentStep === steps.length - 1}>
+                      ⏭️ Adım İleri
+                    </button>
+                    <button
+                      onClick={finishNow}
+                      disabled={steps.length === 0 || currentStep === steps.length - 1}
+                      className="primary-ghost"
+                    >
+                      ⏩ Animasyonu Bitir
+                    </button>
+                    <label className="speed-control">
+                      Hız: {speed}
+                      <input
+                        type="range"
+                        min={1}
+                        max={20}
+                        value={speed}
+                        onChange={e => handleSpeedChange(Number(e.target.value))}
+                      />
+                    </label>
+                  </div>
+                </section>
 
-            {/* Kalıcı Tablolardan önce Reset */}
-            <div style={{ marginTop: 16, display: 'flex', gap: 16, alignItems: 'flex-start', flexWrap: 'wrap', justifyContent: 'center' }}>
-              <button onClick={resetAll}>Reset</button>
-            </div>
+                <section className="controls-section card">
+                  <h2>Kontroller</h2>
+                  <div className="controls-grid">
+                    <div className="control-block">
+                      <label className="field-label">
+                        Tahta Boyutu (N)
+                        <span className="field-hint">4 ile 24 arasında değer seçebilirsiniz.</span>
+                      </label>
+                      <div className="n-control">
+                        <button onClick={decN} disabled={n <= 4}>
+                          −
+                        </button>
+                        <input
+                          type="number"
+                          min={4}
+                          max={24}
+                          value={n}
+                          onChange={e => onChangeN(Number(e.target.value))}
+                        />
+                        <button onClick={incN} disabled={n >= 24}>
+                          +
+                        </button>
+                      </div>
+                    </div>
+                    <div className="control-block">
+                      <span className="field-label">Algoritma Seçimi</span>
+                      <div className="algo-buttons">
+                        {ALGORITHMS.map(a => (
+                          <button
+                            key={a.key}
+                            className={algo === a.key ? 'selected' : ''}
+                            onClick={() => setAlgo(a.key)}
+                          >
+                            {a.name}
+                          </button>
+                        ))}
+                      </div>
+                      <p className="algo-indicator">
+                        Seçili: <strong>{algo === 'backtracking' ? 'Backtracking' : 'Hill Climbing'}</strong>
+                      </p>
+                      <button onClick={handleSolve} className="primary-button full-width">
+                        Seçili Yöntemle Çöz
+                      </button>
+                    </div>
+                  </div>
+                  <div className="controls-footer">
+                    <button onClick={resetAll} className="ghost-button">
+                      Tüm Kayıtlı Sonuçları Temizle
+                    </button>
+                  </div>
+                </section>
 
-            {/* Kalıcı Tablolar */}
-            <div style={{ marginTop: 12, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-              <div>
-                <h3>Backtracking Son Koşu</h3>
-                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                  <tbody>
-                    <tr><td><strong>N</strong></td><td>{storedBT?.n ?? '—'}</td></tr>
-                    <tr><td><strong>Süre</strong></td><td>{formatMs(storedBT?.runtimeMs)}</td></tr>
-                    <tr><td><strong>Adım</strong></td><td>{storedBT?.stepsCount ?? '—'}</td></tr>
-                    <tr><td><strong>Backtrack</strong></td><td>{storedBT?.backtracks ?? '—'}</td></tr>
-                    <tr><td><strong>Maks derinlik</strong></td><td>{storedBT?.maxDepth ?? '—'}</td></tr>
-                    <tr><td><strong>Ziyaret edilen durum</strong></td><td>{storedBT?.visitedStates ?? '—'}</td></tr>
-                    <tr><td><strong>Tarih</strong></td><td>{storedBT?.timestamp ? new Date(storedBT.timestamp).toLocaleString() : '—'}</td></tr>
-                  </tbody>
-                </table>
+                <section className="metrics-section">
+                  <div className="metrics-card card">
+                    <div className="metrics-header">
+                      <h3>Backtracking Son Koşu</h3>
+                    </div>
+                    <table className="metrics-table">
+                      <tbody>
+                        <tr><td><strong>N</strong></td><td>{storedBT?.n ?? '—'}</td></tr>
+                        <tr><td><strong>Süre</strong></td><td>{formatMs(storedBT?.runtimeMs)}</td></tr>
+                        <tr><td><strong>Adım</strong></td><td>{storedBT?.stepsCount ?? '—'}</td></tr>
+                        <tr><td><strong>Backtrack</strong></td><td>{storedBT?.backtracks ?? '—'}</td></tr>
+                        <tr><td><strong>Maks derinlik</strong></td><td>{storedBT?.maxDepth ?? '—'}</td></tr>
+                        <tr><td><strong>Ziyaret edilen durum</strong></td><td>{storedBT?.visitedStates ?? '—'}</td></tr>
+                        <tr><td><strong>Tarih</strong></td><td>{storedBT?.timestamp ? new Date(storedBT.timestamp).toLocaleString() : '—'}</td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+                  <div className="metrics-card card">
+                    <div className="metrics-header">
+                      <h3>Hill Climbing Son Koşu</h3>
+                    </div>
+                    <table className="metrics-table">
+                      <tbody>
+                        <tr><td><strong>N</strong></td><td>{storedHC?.n ?? '—'}</td></tr>
+                        <tr><td><strong>Süre</strong></td><td>{formatMs(storedHC?.runtimeMs)}</td></tr>
+                        <tr><td><strong>Adım</strong></td><td>{storedHC?.stepsCount ?? '—'}</td></tr>
+                        <tr><td><strong>Ziyaret edilen durum</strong></td><td>{storedHC?.visitedStates ?? '—'}</td></tr>
+                        <tr><td><strong>Restart</strong></td><td>{storedHC?.restarts ?? '—'}</td></tr>
+                        <tr><td><strong>Başarı</strong></td><td>{storedHC?.success === true ? 'Evet' : storedHC?.success === false ? 'Hayır' : '—'}</td></tr>
+                        <tr><td><strong>Neden</strong></td><td>{storedHC?.failureReason ?? '—'}</td></tr>
+                        <tr><td><strong>Tarih</strong></td><td>{storedHC?.timestamp ? new Date(storedHC.timestamp).toLocaleString() : '—'}</td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </section>
+                <Toast show={toastShow} message={toastMsg} onClose={() => setToastShow(false)} />
               </div>
-              <div>
-                <h3>Hill Climbing Son Koşu</h3>
-                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                  <tbody>
-                    <tr><td><strong>N</strong></td><td>{storedHC?.n ?? '—'}</td></tr>
-                    <tr><td><strong>Süre</strong></td><td>{formatMs(storedHC?.runtimeMs)}</td></tr>
-                    <tr><td><strong>Adım</strong></td><td>{storedHC?.stepsCount ?? '—'}</td></tr>
-                    <tr><td><strong>Ziyaret edilen durum</strong></td><td>{storedHC?.visitedStates ?? '—'}</td></tr>
-                    <tr><td><strong>Restart</strong></td><td>{storedHC?.restarts ?? '—'}</td></tr>
-                    <tr><td><strong>Başarı</strong></td><td>{storedHC?.success === true ? 'Evet' : storedHC?.success === false ? 'Hayır' : '—'}</td></tr>
-                    <tr><td><strong>Neden</strong></td><td>{storedHC?.failureReason ?? '—'}</td></tr>
-                    <tr><td><strong>Tarih</strong></td><td>{storedHC?.timestamp ? new Date(storedHC.timestamp).toLocaleString() : '—'}</td></tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-            <Toast show={toastShow} message={toastMsg} onClose={() => setToastShow(false)} />
-          </>
-        } />
-        <Route path="/info/backtracking" element={<BacktrackingInfo />} />
-        <Route path="/info/hillclimbing" element={<HillClimbingInfo />} />
-      </Routes>
+            }
+          />
+          <Route path="/info/backtracking" element={<BacktrackingInfo />} />
+          <Route path="/info/hillclimbing" element={<HillClimbingInfo />} />
+        </Routes>
+      </main>
     </div>
   );
 }
