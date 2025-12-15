@@ -72,7 +72,8 @@ npm install
 
 npm run dev Tarayıcıdan şu adrese git:
 
-http://localhost:5173### Production Build
+http://localhost:5173
+### Production Build
 
 npm run build Oluşan statik dosyalar `dist/` klasöründe yer alır.  
 İstersen `npm run preview` komutuyla lokal production önizlemesi yapabilirsin.
