@@ -67,9 +67,10 @@ Bu proje, klasik **N-Queens** problemini iki farklı yaklaşımla (**Backtrackin
 
 git clone https://github.com/AlperArslantas/N-Queens.git
 cd N-Queens/NQueensVisualizer
-npm install### Geliştirme Sunucusu
+npm install
+### Geliştirme Sunucusu
 
-npm run devTarayıcıdan şu adrese git:
+npm run dev Tarayıcıdan şu adrese git:
 
 http://localhost:5173### Production Build
 
